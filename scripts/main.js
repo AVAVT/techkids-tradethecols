@@ -137,9 +137,13 @@ var onBulletHitWall = function(bulletSprite, wallSprite){
 var onBulletHitTank = function(bulletSprite, tankSprite){
   if(bulletSprite.tankSprite != tankSprite){
     bulletSprite.kill();
-    if(tankSprite == TankOnline.tank.sprite){
+    if(TankOnline.gameStart !== undefined 
+      && TankOnline.game.time.now - TankOnline.gameStart > 3000 
+      && tankSprite == TankOnline.tank.sprite){
+        
       tankSprite.damage(bulletSprite.bulletDamage);
       if(!tankSprite.alive) TankOnline.client.die(bulletSprite.id);
+      
       setTimeout(function(){
         location.reload();
       }, 1000);
@@ -167,6 +171,7 @@ TankOnline.onConnected = function(msg){
   TankOnline.game.camera.follow(TankOnline.tank.sprite);
   TankOnline.game.onPause.add(TankOnline.onPause, this);
   TankOnline.game.onResume.add(TankOnline.onResume, this);
+  TankOnline.gameStart = TankOnline.game.time.now;
   
   var leaderboard ='';
   for(var i=0; i< msg.top3.length;i++){
@@ -179,7 +184,27 @@ TankOnline.onConnected = function(msg){
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
-  TankOnline.enemies.push(new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username));
+  var newTank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
+  setTimeout(function(){
+    newTank.sprite.alpha = 0;
+    setTimeout(function(){
+      newTank.sprite.alpha = 1;
+      setTimeout(function(){
+        newTank.sprite.alpha = 0;
+        setTimeout(function(){
+          newTank.sprite.alpha = 1;
+          setTimeout(function(){
+            newTank.sprite.alpha = 0;
+            setTimeout(function(){
+              newTank.sprite.alpha = 1;
+            }, 500);
+          }, 500);
+        }, 500);
+      }, 500);
+    }, 500);
+  }, 500);
+  
+  TankOnline.enemies.push();
   TankOnline.notification.setText('New player connected: ' + msg.username);
   TankOnline.notificationTime = TankOnline.game.time.now;
 }
