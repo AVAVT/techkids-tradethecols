@@ -4,6 +4,8 @@ class SocketClient {
 
     this.socket = io();
     var username = prompt("Please enter your name", localStorage.getItem('username') || 'Supatank');
+    username = username || 'Supatank';
+    
     localStorage.setItem('username', username);
     this.socket.emit('login', username);
     
