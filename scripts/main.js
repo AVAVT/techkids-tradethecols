@@ -54,17 +54,27 @@ var create = function(){
   
   TankOnline.keyboard = TankOnline.game.input.keyboard;
   
+  
   TankOnline.enemies = [];
   TankOnline.wallGroup = TankOnline.game.add.physicsGroup();
   TankOnline.bulletGroup = TankOnline.game.add.physicsGroup();
   TankOnline.tankGroup = TankOnline.game.add.physicsGroup();
   TankOnline.leaderboard = TankOnline.game.add.text(10, 10, '', {
-      font: 'bold 11pt Arial',
-      fill : 'white',
-      stroke : 'black',
-      strokeThickness : 3
-    });
-    
+    font: 'bold 11pt Arial',
+    fill : 'white',
+    stroke : 'black',
+    strokeThickness : 3
+  });
+
+  TankOnline.notification = TankOnline.game.add.text(window.innerWidth - 10, 10, '', {
+    font: 'bold 11pt Arial',
+    fill : 'white',
+    stroke : 'black',
+    strokeThickness : 3
+  });
+  TankOnline.notification.anchor.set(1,0);
+  TankOnline.notificationTime = TankOnline.game.time.now;
+  
   TankOnline.game.world.setBounds(0, 0, 3200, 600);
 
   for(var i=0;i<TankOnline.map.length;i++){
@@ -97,6 +107,10 @@ var update = function(){
 
   if(TankOnline.inputController){
     TankOnline.inputController.update();
+  }
+  
+  if(TankOnline.game.time.now - TankOnline.notificationTime > 5000){
+    TankOnline.notification.setText('');
   }
 }
 
@@ -160,14 +174,14 @@ TankOnline.onConnected = function(msg){
   }
   TankOnline.leaderboard.setText(leaderboard);
   TankOnline.leaderboard.fixedToCamera = true;
-  setTimeout(function(){
-    TankOnline.leaderboard.x = msg.position.x - window.innerWidth/2 + 50;
-    TankOnline.leaderboard.y = msg.position.y - window.innerHeight/2 + 50;  
-  }, 100);
+  
+  TankOnline.notification.fixedToCamera = true;
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
   TankOnline.enemies.push(new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username));
+  TankOnline.notification.setText('New player connected: ' + msg.username);
+  TankOnline.notificationTime = TankOnline.game.time.now;
 }
 
 TankOnline.onPlayerDisconnected = function(msg){
