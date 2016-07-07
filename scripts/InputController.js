@@ -32,7 +32,7 @@ class InputController{
         && TankOnline.game.time.now - this.lastShotTime > 200 ){
 
         this.lastShotTime = TankOnline.game.time.now;
-        this.tank.fire();
+        this.fire();
 
         TankOnline.client.fire(
           {
@@ -42,5 +42,9 @@ class InputController{
         );
       }
     }
+  }
+  
+  fire(){
+    new Bullet(this.tank);
   }
 }

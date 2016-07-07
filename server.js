@@ -8,13 +8,19 @@ var allTanks = [];
 var tankById = function(id, killOnSight){
   for(var i=0;i<allTanks.length;i++){
     if(allTanks[i].id == id){
-      var result = allTanks[i];
-      if(killOnSight) allTanks.splice(i, 1);
-      return result;
+      return killOnSight ? allTanks.splice(i, 1)[0] : allTanks[i];
     }
   }
 
   return null;
+}
+
+function compare(a,b) {
+  if (a.score < b.score)
+    return 1;
+  if (a.score > b.score)
+    return -1;
+  return 0;
 }
 
 app.get('/', function(req, res){
@@ -23,25 +29,35 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
   console.log('user connected');
-  var response = {
-    position : {
-      x : Math.random()*3200,
-      y : Math.random()*600,
-    },
-    id : socket.id,
-    enemies : allTanks.slice()
-  }
-
-  socket.emit('connected', response);
-  socket.broadcast.emit('newPlayerJoined', response);
-  delete response.enemies;
-
-  allTanks.push(response);
-
+  
+  socket.on('login', function(msg){
+    var response = {
+      score: 0,
+      username : msg,
+      position : {
+        x : Math.random()*3200,
+        y : Math.random()*600,
+      },
+      id : socket.id,
+      enemies : allTanks.slice()
+    }
+    response.top3 = allTanks.slice(0,3);
+    socket.emit('connected', response);
+    socket.broadcast.emit('newPlayerJoined', response);
+    
+    response.top3 = undefined;
+    delete response.enemies;
+  
+    allTanks.push(response);
+  });
+  
   socket.on('tankMove', function(msg){
     var tank = tankById(socket.id);
-    tank.position.x = msg.position.x;
-    tank.position.y = msg.position.y;
+    if(tank){
+      tank.position.x = msg.position.x;
+      tank.position.y = msg.position.y;
+    }
+    
     socket.broadcast.emit('tankMoved', msg);
   });
 
@@ -50,7 +66,23 @@ io.on('connection', function(socket){
   });
 
   socket.on('tankDie', function(msg){
+    var killer = tankById(msg.killerId);
+    killer.score += 1;
+    allTanks.sort(compare);
+    msg.top3 = allTanks.slice(0,3);
     socket.broadcast.emit('tankDied', msg);
+  });
+  
+  socket.on('playerAfk', function(msg){
+    socket.broadcast.emit('playerAfk', msg);
+    var player = tankById(msg.id);
+    if(player) player.afk = true;
+  });
+  
+  socket.on('playerReturn', function(msg){
+    socket.broadcast.emit('playerReturn', msg);
+    var player = tankById(msg.id);
+    if(player) player.afk = false;
   });
 
   socket.on('disconnect', function(){
@@ -61,6 +93,6 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(6969, function(){
-  console.log('Server started. Listening on *:6969');
+http.listen(8080, function(){
+  console.log('Server started. Listening on *:8080');
 });

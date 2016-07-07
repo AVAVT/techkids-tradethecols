@@ -1,6 +1,12 @@
 class Tank{
-  constructor(id, x, y, group){
+  constructor(id, x, y, group, name){
     this.sprite = group.create(x, y, 'tankDown');
+    var text = new Phaser.Text(this.sprite.game, 0, -25, name, {
+      font: 'bold 11pt Arial',
+      fill : 'white'
+    });
+    text.anchor.set(0.5,0.5);
+    this.sprite.addChild(text);
     this.id = id;
     TankOnline.game.physics.arcade.enable(this.sprite);
     this.sprite.anchor.set(0.5,0.5);
@@ -8,6 +14,7 @@ class Tank{
     this.lastShotTime = TankOnline.game.time.now;
     this.sprite.body.collideWorldBounds = true;
     this.sprite.health = 1;
+    this.sprite.events.onKilled.add(this.explode, this);
   }
 
   update(direction){
@@ -40,7 +47,7 @@ class Tank{
     }
   }
 
-  fire(){
-    new Bullet(this);
+  explode(){
+    TankOnline.onTankExploded(this.sprite.position);
   }
 }

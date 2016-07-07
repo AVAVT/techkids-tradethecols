@@ -3,13 +3,16 @@ class SocketClient {
     var that = this;
 
     this.socket = io();
+    var username = prompt("Please enter your name", localStorage.getItem('username') || 'Supatank');
+    localStorage.setItem('username', username);
+    this.socket.emit('login', username);
+    
     this.socket.on('connected', function(msg){
       TankOnline.onConnected(msg);
       that.id = msg.id;
     });
 
     this.socket.on('tankMoved', function(msg){
-      console.log(msg.direction);
       TankOnline.onPlayerMoved(msg);
     });
 
@@ -29,6 +32,14 @@ class SocketClient {
       console.log('Player disconnected: '+ msg.id);
       TankOnline.onPlayerDisconnected(msg);
     });
+    
+    this.socket.on('playerAfk', function(msg){
+      TankOnline.onPlayerAFK(msg);
+    });
+    
+    this.socket.on('playerReturn', function(msg){
+      TankOnline.onPlayerReturn(msg);
+    });
   }
 
   fire(position, direction){
@@ -47,11 +58,24 @@ class SocketClient {
       direction: direction
     });
   }
-  die(position){
+  die(killer){
     var theId = this.id;
     this.socket.emit('tankDie', {
       id: theId,
-      position: position
+      killerId: killer
+    });
+  }
+  
+  playerAfk(){
+    var theId = this.id;
+    this.socket.emit('playerAfk', {
+      id: theId
+    });
+  }
+  playerReturn(){
+    var theId = this.id;
+    this.socket.emit('playerReturn', {
+      id: theId
     });
   }
 }
