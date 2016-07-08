@@ -53,7 +53,7 @@ var preload = function(){
 
 var create = function(){
   TankOnline.game.physics.startSystem(Phaser.Physics.ARCADE);
-  TankOnline.game.stage.disableVisibilityChange = true;
+  // TankOnline.game.stage.disableVisibilityChange = true;
   TankOnline.keyboard = TankOnline.game.input.keyboard;
   
   TankOnline.pingHistory = [];
@@ -203,7 +203,7 @@ TankOnline.onLoggedIn = function(msg){
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
-  // if(tankById(msg.id)) return;
+  if(tankById(msg.id)) return;
   
   var newTank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
   
