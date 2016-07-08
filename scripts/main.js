@@ -21,6 +21,7 @@ var TankOnline = {
 ]
 }
 
+
 window.onload = function(){
   TankOnline.game = new Phaser.Game(window.innerWidth,
                                     window.innerHeight,
@@ -185,26 +186,19 @@ TankOnline.onConnected = function(msg){
 
 TankOnline.onNewPlayerJoined = function(msg){
   var newTank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
-  setTimeout(function(){
-    newTank.sprite.alpha = 0;
-    setTimeout(function(){
-      newTank.sprite.alpha = 1;
-      setTimeout(function(){
-        newTank.sprite.alpha = 0;
-        setTimeout(function(){
-          newTank.sprite.alpha = 1;
-          setTimeout(function(){
-            newTank.sprite.alpha = 0;
-            setTimeout(function(){
-              newTank.sprite.alpha = 1;
-            }, 500);
-          }, 500);
-        }, 500);
-      }, 500);
-    }, 500);
-  }, 500);
   
-  TankOnline.enemies.push();
+  var tankCreatedTime = TankOnline.game.time.now;
+  var tankBlinkInterval = setInterval(function () {
+  
+     newTank.sprite.alpha = 1 - newTank.sprite.alpha;
+  
+     if (TankOnline.game.time.now - tankCreatedTime > 3000) {
+         window.clearInterval(tankBlinkInterval);
+         newTank.sprite.alpha = 1;
+     }
+  }, 300);
+  
+  TankOnline.enemies.push(newTank);
   TankOnline.notification.setText('New player connected: ' + msg.username);
   TankOnline.notificationTime = TankOnline.game.time.now;
 }
