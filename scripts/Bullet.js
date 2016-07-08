@@ -21,5 +21,11 @@ class Bullet{
     this.sprite.bulletDamage = 1;
     this.sprite.tankSprite = tank.sprite;
     this.sprite.id = tank.id;
+    var that = this;
+    setTimeout(function(){that.theEnd();}, 6000);
+  }
+  
+  theEnd(){
+    this.sprite.destroy();
   }
 }
