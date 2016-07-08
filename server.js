@@ -100,6 +100,6 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(6969, function(){
+http.listen(8080, function(){
   console.log('Server started. Listening on *:8080');
 });

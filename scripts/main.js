@@ -295,5 +295,5 @@ TankOnline.reportLatency = function(msg){
   for(var i=0;i<TankOnline.pingHistory.length;i++){
     sum += TankOnline.pingHistory[i];
   }
-  TankOnline.latency.setText("Latency: " + (sum/TankOnline.pingHistory.length).toFixed(2));
+  TankOnline.latency.setText("Ping: " + (sum/TankOnline.pingHistory.length).toFixed(1) + "ms");
 }
