@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-app.use(express.static(__dirname+"/game/tank/"));
+app.use(express.static(__dirname));
 
 var allTanks = [];
 var tankById = function(id, killOnSight){
@@ -24,7 +24,9 @@ function compare(a,b) {
 }
 
 app.get('/', function(req, res){
+
   res.sendFile(__dirname +'/index.html');
+
 });
 
 io.on('connection', function(socket){
