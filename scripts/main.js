@@ -53,7 +53,7 @@ var preload = function(){
 
 var create = function(){
   TankOnline.game.physics.startSystem(Phaser.Physics.ARCADE);
-  
+  TankOnline.game.stage.disableVisibilityChange = true;
   TankOnline.keyboard = TankOnline.game.input.keyboard;
   
   TankOnline.pingHistory = [];
@@ -170,6 +170,7 @@ var onBulletHitTank = function(bulletSprite, tankSprite){
  * GAME EVENTS
  */
 TankOnline.onConnected = function(msg){
+  console.log(msg);
   for(var i=0;i<msg.enemies.length;i++){
     var enemy = new Tank(msg.enemies[i].id, msg.enemies[i].position.x, msg.enemies[i].position.y, TankOnline.tankGroup, msg.enemies[i].username);
     if(msg.enemies[i].afk){
@@ -202,7 +203,7 @@ TankOnline.onLoggedIn = function(msg){
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
-  if(tankById(msg.id)) return;
+  // if(tankById(msg.id)) return;
   
   var newTank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
   

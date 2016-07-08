@@ -45,7 +45,7 @@ io.on('connection', function(socket){
       id : socket.id
     }
     response.top3 = allTanks.slice(0,3);
-    socket.emit('connected', response);
+    socket.emit('loggedIn', response);
     socket.broadcast.emit('newPlayerJoined', response);
     response.top3 = undefined;
   

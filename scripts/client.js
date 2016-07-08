@@ -3,23 +3,30 @@ class SocketClient {
     var that = this;
 
     this.socket = io();
-    this.socket.emit('login', username);
+    that.socket.emit('login', username);
     
     this.socket.on('connected', function(msg){
       TankOnline.onConnected(msg);
-      setInterval(function(){that.ping();}, 500);
-      that.id = msg.id;
     });
     
     this.socket.on('loggedIn', function(msg){
+      // console.log("On player log in: ");
+      // console.log(msg);
+      that.id = msg.id;
       TankOnline.onLoggedIn(msg);
+      
+      setInterval(function(){that.ping();}, 500);
     });
     
     this.socket.on('tankMoved', function(msg){
+      // console.log("On player move: ");
+      // console.log(msg);
       TankOnline.onPlayerMoved(msg);
     });
 
     this.socket.on('tankFired', function(msg){
+      // console.log("On player fired: ");
+      // console.log(msg);
       TankOnline.onPlayerFired(msg);
     });
 
