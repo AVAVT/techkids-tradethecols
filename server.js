@@ -24,9 +24,7 @@ function compare(a,b) {
 }
 
 app.get('/', function(req, res){
-
-  res.sendFile(__dirname +'/index.html');
-
+  res.sendFile(__dirname + '/index.html');
 });
 
 io.on('connection', function(socket){
@@ -69,7 +67,10 @@ io.on('connection', function(socket){
 
   socket.on('tankDie', function(msg){
     var killer = tankById(msg.killerId);
-    killer.score += 1;
+    if(killer){
+      killer.score += 1;
+    }
+    
     allTanks.sort(compare);
     msg.top3 = allTanks.slice(0,3);
     socket.broadcast.emit('tankDied', msg);
@@ -92,6 +93,10 @@ io.on('connection', function(socket){
     if(tankById(socket.id, true)){
       socket.broadcast.emit('playerDisconnected', {id : socket.id});
     }
+  });
+  
+  socket.on('aPing', function(msg){
+    socket.emit('aPong', msg);
   });
 });
 

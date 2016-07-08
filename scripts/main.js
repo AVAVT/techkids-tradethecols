@@ -21,6 +21,7 @@ var TankOnline = {
 ]
 }
 
+// window.location = "http://techkids.vn:6969/";
 
 window.onload = function(){
   TankOnline.game = new Phaser.Game(window.innerWidth,
@@ -55,6 +56,7 @@ var create = function(){
   
   TankOnline.keyboard = TankOnline.game.input.keyboard;
   
+  TankOnline.pingHistory = [];
   
   TankOnline.enemies = [];
   TankOnline.wallGroup = TankOnline.game.add.physicsGroup();
@@ -75,6 +77,14 @@ var create = function(){
   });
   TankOnline.notification.anchor.set(1,0);
   TankOnline.notificationTime = TankOnline.game.time.now;
+  
+  TankOnline.latency = TankOnline.game.add.text(window.innerWidth - 10, window.innerHeight - 10, '', {
+    font: 'bold 11pt Arial',
+    fill : 'white',
+    stroke : 'black',
+    strokeThickness : 3
+  });
+  TankOnline.latency.anchor.set(1,1);
   
   TankOnline.game.world.setBounds(0, 0, 3200, 600);
 
@@ -182,6 +192,7 @@ TankOnline.onConnected = function(msg){
   TankOnline.leaderboard.fixedToCamera = true;
   
   TankOnline.notification.fixedToCamera = true;
+  TankOnline.latency.fixedToCamera = true;
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
@@ -275,4 +286,14 @@ TankOnline.onPlayerReturn = function(msg){
     enemy.sprite.alpha = 1;
     enemy.sprite.body.enable = true;
   }
+}
+
+TankOnline.reportLatency = function(msg){
+  TankOnline.pingHistory.push((TankOnline.game.time.now - msg)/2);
+  if(TankOnline.pingHistory.length > 10) TankOnline.pingHistory.shift();
+  var sum = 0;
+  for(var i=0;i<TankOnline.pingHistory.length;i++){
+    sum += TankOnline.pingHistory[i];
+  }
+  TankOnline.latency.setText("Latency: " + (sum/TankOnline.pingHistory.length).toFixed(2));
 }

@@ -11,6 +11,7 @@ class SocketClient {
     
     this.socket.on('connected', function(msg){
       TankOnline.onConnected(msg);
+      setInterval(function(){that.ping();}, 500);
       that.id = msg.id;
     });
 
@@ -41,6 +42,10 @@ class SocketClient {
     
     this.socket.on('playerReturn', function(msg){
       TankOnline.onPlayerReturn(msg);
+    });
+    
+    this.socket.on('aPong', function(msg){
+      TankOnline.reportLatency(msg);
     });
   }
 
@@ -79,5 +84,9 @@ class SocketClient {
     this.socket.emit('playerReturn', {
       id: theId
     });
+  }
+  
+  ping(){
+    this.socket.emit('aPing', TankOnline.game.time.now);
   }
 }
