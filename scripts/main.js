@@ -96,7 +96,11 @@ var create = function(){
     }
   }
   
-  TankOnline.client = new SocketClient();
+  var username = prompt("Please enter your name", localStorage.getItem('username') || 'Supatank');
+  username = username || 'Supatank';
+  
+  localStorage.setItem('username', username);
+  TankOnline.client = new SocketClient(username);
 }
 
 var update = function(){
@@ -166,9 +170,6 @@ var onBulletHitTank = function(bulletSprite, tankSprite){
  * GAME EVENTS
  */
 TankOnline.onConnected = function(msg){
-  TankOnline.tank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
-  TankOnline.inputController = new InputController(TankOnline.keyboard, TankOnline.tank);
-  
   for(var i=0;i<msg.enemies.length;i++){
     var enemy = new Tank(msg.enemies[i].id, msg.enemies[i].position.x, msg.enemies[i].position.y, TankOnline.tankGroup, msg.enemies[i].username);
     if(msg.enemies[i].afk){
@@ -178,7 +179,12 @@ TankOnline.onConnected = function(msg){
     
     TankOnline.enemies.push(enemy);
   }
+}
 
+TankOnline.onLoggedIn = function(msg){
+  TankOnline.tank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
+  TankOnline.inputController = new InputController(TankOnline.keyboard, TankOnline.tank);
+  
   TankOnline.game.camera.follow(TankOnline.tank.sprite);
   TankOnline.game.onPause.add(TankOnline.onPause, this);
   TankOnline.game.onResume.add(TankOnline.onResume, this);
@@ -196,17 +202,18 @@ TankOnline.onConnected = function(msg){
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
+  if(tankById(msg.id)) return;
+  
   var newTank = new Tank(msg.id, msg.position.x, msg.position.y, TankOnline.tankGroup, msg.username);
   
   var tankCreatedTime = TankOnline.game.time.now;
+  
   var tankBlinkInterval = setInterval(function () {
-  
-     newTank.sprite.alpha = 1 - newTank.sprite.alpha;
-  
-     if (TankOnline.game.time.now - tankCreatedTime > 3000) {
-         window.clearInterval(tankBlinkInterval);
-         newTank.sprite.alpha = 1;
-     }
+    newTank.sprite.alpha = 1 - newTank.sprite.alpha;
+    if (TankOnline.game.time.now - tankCreatedTime > 3000) {
+      window.clearInterval(tankBlinkInterval);
+      newTank.sprite.alpha = 1;
+    }
   }, 300);
   
   TankOnline.enemies.push(newTank);

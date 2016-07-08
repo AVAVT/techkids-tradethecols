@@ -1,12 +1,8 @@
 class SocketClient {
-  constructor(){
+  constructor(username){
     var that = this;
 
     this.socket = io();
-    var username = prompt("Please enter your name", localStorage.getItem('username') || 'Supatank');
-    username = username || 'Supatank';
-    
-    localStorage.setItem('username', username);
     this.socket.emit('login', username);
     
     this.socket.on('connected', function(msg){
@@ -14,7 +10,11 @@ class SocketClient {
       setInterval(function(){that.ping();}, 500);
       that.id = msg.id;
     });
-
+    
+    this.socket.on('loggedIn', function(msg){
+      TankOnline.onLoggedIn(msg);
+    });
+    
     this.socket.on('tankMoved', function(msg){
       TankOnline.onPlayerMoved(msg);
     });

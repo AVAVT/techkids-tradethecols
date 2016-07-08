@@ -30,6 +30,10 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   console.log('user connected');
   
+  socket.emit('connected', {
+    enemies : allTanks.slice()
+  });
+  
   socket.on('login', function(msg){
     var response = {
       score: 0,
@@ -38,15 +42,12 @@ io.on('connection', function(socket){
         x : Math.random()*3200,
         y : Math.random()*600,
       },
-      id : socket.id,
-      enemies : allTanks.slice()
+      id : socket.id
     }
     response.top3 = allTanks.slice(0,3);
     socket.emit('connected', response);
     socket.broadcast.emit('newPlayerJoined', response);
-    
     response.top3 = undefined;
-    delete response.enemies;
   
     allTanks.push(response);
   });
