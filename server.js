@@ -97,10 +97,13 @@ io.on('connection', function(socket){
   });
   
   socket.on('aPing', function(msg){
-    socket.emit('aPong', msg);
+    socket.emit('aPong', {
+      ping: msg,
+      top3: allTanks.slice(0,3)
+    });
   });
 });
 
-http.listen(6969, function(){
+http.listen(8080, function(){
   console.log('Server started. Listening on *:8080');
 });

@@ -170,7 +170,6 @@ var onBulletHitTank = function(bulletSprite, tankSprite){
  * GAME EVENTS
  */
 TankOnline.onConnected = function(msg){
-  console.log(msg);
   for(var i=0;i<msg.enemies.length;i++){
     var enemy = new Tank(msg.enemies[i].id, msg.enemies[i].position.x, msg.enemies[i].position.y, TankOnline.tankGroup, msg.enemies[i].username);
     if(msg.enemies[i].afk){
@@ -297,11 +296,17 @@ TankOnline.onPlayerReturn = function(msg){
 }
 
 TankOnline.reportLatency = function(msg){
-  TankOnline.pingHistory.push((TankOnline.game.time.now - msg)/2);
+  TankOnline.pingHistory.push((TankOnline.game.time.now - msg.ping)/2);
   if(TankOnline.pingHistory.length > 10) TankOnline.pingHistory.shift();
   var sum = 0;
   for(var i=0;i<TankOnline.pingHistory.length;i++){
     sum += TankOnline.pingHistory[i];
   }
   TankOnline.latency.setText("Ping: " + (sum/TankOnline.pingHistory.length).toFixed(1) + "ms");
+  
+  var leaderboard ='';
+  for(var i=0; i< msg.top3.length;i++){
+    leaderboard += (i+1) + '. ' + msg.top3[i].username + ': ' + msg.top3[i].score + '\n';
+  }
+  TankOnline.leaderboard.setText(leaderboard);
 }
