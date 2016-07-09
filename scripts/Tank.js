@@ -1,9 +1,12 @@
 class Tank{
   constructor(id, x, y, group, name){
     this.sprite = group.create(x, y, 'tankDown');
+    this.name = name;
     var text = new Phaser.Text(this.sprite.game, 0, -25, name, {
       font: 'bold 11pt Arial',
-      fill : 'white'
+      fill : 'white',
+      stroke : 'black',
+      strokeThickness : 3
     });
     text.anchor.set(0.5,0.5);
     this.sprite.addChild(text);

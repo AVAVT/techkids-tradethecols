@@ -86,6 +86,14 @@ var create = function(){
   });
   TankOnline.latency.anchor.set(1,1);
   
+  TankOnline.deathMessage = TankOnline.game.add.text(window.innerWidth/2, window.innerHeight/2 - 60, '', {
+    font: 'bold 15pt Arial',
+    fill : 'white',
+    stroke : 'black',
+    strokeThickness : 3
+  });
+  TankOnline.deathMessage.anchor.set(0.5,0.5);
+  
   TankOnline.game.world.setBounds(0, 0, 3200, 600);
 
   for(var i=0;i<TankOnline.map.length;i++){
@@ -96,8 +104,9 @@ var create = function(){
     }
   }
   
-  var username = prompt("Please enter your name", localStorage.getItem('username') || 'Supatank');
+  var username = prompt("Please enter your name (max 20 chars)", localStorage.getItem('username') || 'Supatank');
   username = username || 'Supatank';
+  if(username.length > 20) username = username.substring(0, 19);
   
   localStorage.setItem('username', username);
   TankOnline.client = new SocketClient(username);
@@ -157,7 +166,11 @@ var onBulletHitTank = function(bulletSprite, tankSprite){
       && tankSprite == TankOnline.tank.sprite){
         
       tankSprite.damage(bulletSprite.bulletDamage);
-      if(!tankSprite.alive) TankOnline.client.die(bulletSprite.id);
+      if(!tankSprite.alive){
+        TankOnline.client.die(bulletSprite.id);
+        var killer = tankById(bulletSprite.id);
+        if(killer) TankOnline.deathMessage.setText(killer.name + " shot you down");
+      }
       
       setTimeout(function(){
         location.reload();
@@ -196,9 +209,17 @@ TankOnline.onLoggedIn = function(msg){
   }
   TankOnline.leaderboard.setText(leaderboard);
   TankOnline.leaderboard.fixedToCamera = true;
-  
   TankOnline.notification.fixedToCamera = true;
   TankOnline.latency.fixedToCamera = true;
+  TankOnline.deathMessage.fixedToCamera = true;
+  
+  var tankBlinkInterval = setInterval(function () {
+    TankOnline.tank.sprite.alpha = 1 - TankOnline.tank.sprite.alpha;
+    if (TankOnline.game.time.now - TankOnline.gameStart > 3000) {
+      window.clearInterval(tankBlinkInterval);
+      TankOnline.tank.sprite.alpha = 1;
+    }
+  }, 300);
 }
 
 TankOnline.onNewPlayerJoined = function(msg){
